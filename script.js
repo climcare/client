@@ -9,11 +9,17 @@
  * ======================================================================
  */
 
+
 import { getLatestAnalysis }
     from "./services/api.js";
 
 import renderHeader
     from "./components/header.js";
+
+import renderScore
+    from "./components/score.js";
+
+
 
 // =====================================================
 // Estado Global da Aplicação
@@ -81,6 +87,10 @@ function render() {
 
     renderHeader(
         App.analysis
+    );
+
+    renderScore(
+        App.analysis.metrics
     );
 
 }
