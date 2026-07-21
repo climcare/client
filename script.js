@@ -114,9 +114,10 @@ function render() {
         App.analysis.mitigations
     );
 
-    renderMitigations(
-        App.analysis.mitigations
+    renderMetrics(
+        App.analysis.metrics
     );
+
     
 }
 
