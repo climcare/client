@@ -26,7 +26,10 @@ import renderHypotheses
     from "./components/hypotheses.js";   
 
 import renderMitigations
-    from "./components/mitigations.js";    
+    from "./components/mitigations.js";
+
+import renderMetrics
+    from "./components/metrics.js";        
 
 // =====================================================
 // Estado Global da Aplicação
@@ -111,6 +114,9 @@ function render() {
         App.analysis.mitigations
     );
 
+    renderMitigations(
+        App.analysis.mitigations
+    );
     
 }
 
