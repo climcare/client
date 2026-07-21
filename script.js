@@ -19,6 +19,8 @@ import renderHeader
 import renderScore
     from "./components/score.js";
 
+import renderDiagnostics
+    from "./components/diagnostics.js";    
 
 
 // =====================================================
@@ -92,5 +94,9 @@ function render() {
     renderScore(
         App.analysis.metrics
     );
+
+    renderDiagnostics(
+    App.analysis.diagnostics
+);
 
 }
