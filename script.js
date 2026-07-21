@@ -20,7 +20,10 @@ import renderScore
     from "./components/score.js";
 
 import renderDiagnostics
-    from "./components/diagnostics.js";    
+    from "./components/diagnostics.js";   
+    
+import renderHypotheses
+    from "./components/hypotheses.js";   
 
 
 // =====================================================
@@ -97,6 +100,10 @@ function render() {
 
     renderDiagnostics(
     App.analysis.diagnostics
-);
+    );
+
+    renderHypotheses(
+        App.analysis.hypotheses
+    );
 
 }
