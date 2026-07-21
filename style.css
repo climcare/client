@@ -167,3 +167,30 @@ p {
     align-items: center;
 
 }
+/* ==========================================================
+   Header
+========================================================== */
+
+.header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 24px;
+
+}
+
+.header-info {
+
+    text-align: right;
+
+}
+
+.header-info p {
+
+    margin-top: 6px;
+
+}
