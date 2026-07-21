@@ -15,11 +15,11 @@
  * IMPORTANTE:
  * Este componente NÃO calcula métricas,
  * NÃO classifica parâmetros,
- * NÃO determina estados e
+ * NÃO calcula sintomas e
  * NÃO executa regras de negócio.
  *
- * Todos os valores e classificações apresentados
- * são produzidos pelo CORE QAI.
+ * Todas as informações apresentadas
+ * são produzidas pelo CORE QAI.
  *
  * @param {Object} metrics
  */
@@ -80,76 +80,82 @@ export default function renderMetrics(metrics) {
 
             : {};
 
-    const entries =
-        Object.entries(individual);
+    const symptoms =
+        metrics.sintomas &&
+        typeof metrics.sintomas === "object"
+
+            ? metrics.sintomas
+
+            : {};
 
     // =====================================================
     // Análise individual
     // =====================================================
 
+    const individualEntries =
+        Object.entries(individual);
+
     const individualHTML =
-        entries.length > 0
+        individualEntries.length > 0
 
-            ? entries.map(([parameter, data]) => {
-
-                const item =
-                    data &&
-                    typeof data === "object"
-                        ? data
-                        : {};
-
-                return `
+            ? individualEntries.map(
+                ([parameter, state]) => `
 
                     <article class="metric-item">
 
-                        <div class="metric-item-header">
+                        <span class="metric-parameter">
+                            ${formatParameter(parameter)}
+                        </span>
 
-                            <span class="metric-parameter">
-                                ${formatParameter(parameter)}
-                            </span>
-
-                            ${
-                                item.estado !== undefined
-                                    ? `
-                                        <span class="metric-state">
-                                            ${item.estado}
-                                        </span>
-                                    `
-                                    : ""
-                            }
-
-                        </div>
-
-                        ${
-                            item.valor !== undefined
-                                ? `
-                                    <div class="metric-value">
-                                        ${item.valor}
-                                    </div>
-                                `
-                                : ""
-                        }
-
-                        ${
-                            item.mensagem
-                                ? `
-                                    <p class="metric-message">
-                                        ${item.mensagem}
-                                    </p>
-                                `
-                                : ""
-                        }
+                        <strong class="metric-state">
+                            ${state ?? "N/D"}
+                        </strong>
 
                     </article>
 
-                `;
-
-            }).join("")
+                `
+            ).join("")
 
             : `
 
                 <p class="metric-empty">
                     Nenhuma análise individual disponível.
+                </p>
+
+            `;
+
+    // =====================================================
+    // Indicadores de sintomas
+    // =====================================================
+
+    const symptomEntries =
+        Object.entries(symptoms);
+
+    const symptomsHTML =
+        symptomEntries.length > 0
+
+            ? symptomEntries.map(
+                ([symptom, value]) => `
+
+                    <article class="symptom-item">
+
+                        <span class="symptom-label">
+                            ${formatSymptom(symptom)}
+                        </span>
+
+                        <strong class="symptom-value">
+                            ${value ?? "N/D"}
+                        </strong>
+
+                    </article>
+
+                `
+            ).join("")
+
+            : `
+
+                <p class="metric-empty">
+                    Nenhum indicador disponível.
                 </p>
 
             `;
@@ -188,14 +194,17 @@ export default function renderMetrics(metrics) {
                     </span>
 
                     <strong class="metric-summary-value">
+
                         ${
                             metrics.pontoOrvalho !== undefined
                                 ? `${metrics.pontoOrvalho} °C`
                                 : "N/D"
                         }
+
                     </strong>
 
                 </article>
+
 
                 <article class="metric-summary-item">
 
@@ -204,11 +213,13 @@ export default function renderMetrics(metrics) {
                     </span>
 
                     <strong class="metric-summary-value">
+
                         ${
                             metrics.scoreGeral !== undefined
                                 ? metrics.scoreGeral
                                 : "N/D"
                         }
+
                     </strong>
 
                 </article>
@@ -230,6 +241,21 @@ export default function renderMetrics(metrics) {
 
             </div>
 
+
+            <div class="metrics-section">
+
+                <h3 class="metrics-section-title">
+                    Indicadores de Sintomas
+                </h3>
+
+                <div class="symptoms-grid">
+
+                    ${symptomsHTML}
+
+                </div>
+
+            </div>
+
         </div>
 
     `;
@@ -238,7 +264,7 @@ export default function renderMetrics(metrics) {
 
 
 // =====================================================
-// Formatação visual do nome do parâmetro
+// Formatação dos parâmetros
 // =====================================================
 
 function formatParameter(parameter) {
@@ -246,25 +272,46 @@ function formatParameter(parameter) {
     const labels = {
 
         temperatura: "Temperatura",
-        temperature: "Temperatura",
 
         umidade: "Umidade",
-        humidity: "Umidade",
 
         co2: "CO₂",
 
         pm1: "PM1",
+
         pm25: "PM2.5",
+
         pm4: "PM4",
+
         pm10: "PM10",
 
         vocIndex: "VOC Index",
-        noxIndex: "NOx Index",
 
-        pontoOrvalho: "Ponto de Orvalho"
+        noxIndex: "NOx Index"
 
     };
 
     return labels[parameter] ?? parameter;
+
+}
+
+
+// =====================================================
+// Formatação dos sintomas
+// =====================================================
+
+function formatSymptom(symptom) {
+
+    const labels = {
+
+        fadiga: "Fadiga",
+
+        alergia: "Alergia",
+
+        desconforto: "Desconforto"
+
+    };
+
+    return labels[symptom] ?? symptom;
 
 }

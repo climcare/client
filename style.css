@@ -778,7 +778,6 @@ p {
 
 }
 
-
 /* ==========================================================
    Metrics
 ========================================================== */
@@ -880,6 +879,11 @@ p {
 
 }
 
+
+/* ==========================================================
+   Individual Analysis
+========================================================== */
+
 .metrics-grid {
 
     display: grid;
@@ -895,23 +899,19 @@ p {
 
 .metric-item {
 
-    padding: 18px;
-
-    border: 1px solid var(--border);
-
-    border-radius: 10px;
-
-}
-
-.metric-item-header {
-
     display: flex;
 
     align-items: center;
 
     justify-content: space-between;
 
-    gap: 12px;
+    gap: 16px;
+
+    padding: 18px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
 
 }
 
@@ -925,33 +925,64 @@ p {
 
 .metric-state {
 
-    font-size: 12px;
-
-    font-weight: 700;
+    font-size: 13px;
 
     color: var(--primary);
 
 }
 
-.metric-value {
 
-    margin-top: 12px;
+/* ==========================================================
+   Symptoms
+========================================================== */
 
-    font-size: 22px;
+.symptoms-grid {
 
-    font-weight: 700;
+    display: grid;
+
+    grid-template-columns: repeat(
+        3,
+        minmax(0, 1fr)
+    );
+
+    gap: 12px;
 
 }
 
-.metric-message {
+.symptom-item {
 
-    margin-top: 10px;
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    padding: 18px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+}
+
+.symptom-label {
+
+    font-size: 13px;
 
     color: var(--text-secondary);
 
-    line-height: 1.5;
+}
+
+.symptom-value {
+
+    font-size: 22px;
 
 }
+
+
+/* ==========================================================
+   Empty
+========================================================== */
 
 .metric-empty {
 
@@ -967,7 +998,8 @@ p {
 @media (max-width: 700px) {
 
     .metrics-summary,
-    .metrics-grid {
+    .metrics-grid,
+    .symptoms-grid {
 
         grid-template-columns: 1fr;
 
