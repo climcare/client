@@ -29,7 +29,10 @@ import renderMitigations
     from "./components/mitigations.js";
 
 import renderMetrics
-    from "./components/metrics.js";        
+    from "./components/metrics.js";    
+
+import renderEnvironment
+    from "./components/environment.js";    
 
 // =====================================================
 // Estado Global da Aplicação
@@ -118,6 +121,11 @@ function render() {
         App.analysis.metrics
     );
 
-    
+
+    renderEnvironment(
+        App.analysis.environment
+    );
+
+
 }
 

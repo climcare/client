@@ -1006,3 +1006,62 @@ p {
     }
 
 }
+
+
+/* ======================================================================
+   ENVIRONMENT
+   ====================================================================== */
+
+.environment-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.environment-item {
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.environment-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.environment-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.environment-unit {
+    margin-left: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+
+/* ======================================================================
+   RESPONSIVE
+   ====================================================================== */
+
+@media (max-width: 900px) {
+
+    .environment-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .environment-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
