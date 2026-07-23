@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 
 <head>
@@ -7,68 +8,87 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0">
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>CORE QAI - Reference Dashboard</title>
+    <meta
+        name="description"
+        content="Reference Dashboard para integração com CORE QAI"
+    >
+
+    <title>
+        Monitor IAQ | Reference Dashboard
+    </title>
+
+
+    <!-- ==============================================================
+         Styles
+    ============================================================== -->
 
     <link
         rel="stylesheet"
-        href="style.css">
+        href="./style.css"
+    >
 
 </head>
 
+
 <body>
 
-    <main id="app">
+    <!-- ==============================================================
+         APPLICATION
+    ============================================================== -->
 
-        <!-- ===================================================== -->
-        <!-- HEADER -->
-        <!-- ===================================================== -->
+    <div
+        id="app"
+        class="app-shell"
+    >
 
-        <section id="header"></section>
 
-        <!-- ===================================================== -->
-        <!-- SCORE -->
-        <!-- ===================================================== -->
+        <!-- ==========================================================
+             HEADER
+        ========================================================== -->
 
-        <section id="score"></section>
+        <header
+            id="header"
+            class="app-header-container"
+            aria-label="Cabeçalho da aplicação"
+        ></header>
 
-        <!-- ===================================================== -->
-        <!-- DIAGNOSTICS -->
-        <!-- ===================================================== -->
 
-        <section id="diagnostics"></section>
+        <!-- ==========================================================
+             NAVIGATION
+        ========================================================== -->
 
-        <!-- ===================================================== -->
-        <!-- HYPOTHESES -->
-        <!-- ===================================================== -->
+        <nav
+            id="navbar"
+            class="app-navbar-container"
+            aria-label="Navegação principal"
+        ></nav>
 
-        <section id="hypotheses"></section>
 
-        <!-- ===================================================== -->
-        <!-- MITIGATIONS -->
-        <!-- ===================================================== -->
+        <!-- ==========================================================
+             WORKSPACE
+        ========================================================== -->
 
-        <section id="mitigations"></section>
+        <main
+            id="workspace"
+            class="app-workspace"
+            aria-live="polite"
+        ></main>
 
-        <!-- ===================================================== -->
-        <!-- METRICS -->
-        <!-- ===================================================== -->
 
-        <section id="metrics"></section>
+    </div>
 
-        <!-- ===================================================== -->
-        <!-- ENVIRONMENT -->
-        <!-- ===================================================== -->
 
-        <section id="environment"></section>
-
-    </main>
+    <!-- ==============================================================
+         APPLICATION BOOTSTRAP
+    ============================================================== -->
 
     <script
         type="module"
-        src="script.js">
-    </script>
+        src="./script.js"
+    ></script>
 
 </body>
 

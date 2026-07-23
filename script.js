@@ -4,128 +4,261 @@
  * Reference Dashboard
  * ----------------------------------------------------------------------
  * Arquivo : script.js
- * Função  : Bootstrap da aplicação
- * Versão  : RC2.1
+ * Função  : Bootstrap e controle principal da aplicação
+ * Versão  : RC3.0
  * ======================================================================
  */
 
 
+// ======================================================================
+// Application State
+// ======================================================================
+
+import App
+    from "./app/app.js";
+
+
+// ======================================================================
+// Services
+// ======================================================================
+
 import { getLatestAnalysis }
     from "./services/api.js";
 
+
+// ======================================================================
+// Layout
+// ======================================================================
+
 import renderHeader
-    from "./components/header.js";
+    from "./layout/header.js";
 
-import renderScore
-    from "./components/score.js";
+import renderNavbar
+    from "./layout/navbar.js";
 
-import renderDiagnostics
-    from "./components/diagnostics.js";   
-    
-import renderHypotheses
-    from "./components/hypotheses.js";   
+import renderWorkspace
+    from "./layout/workspace.js";
 
-import renderMitigations
-    from "./components/mitigations.js";
 
-import renderMetrics
-    from "./components/metrics.js";    
-
-import renderEnvironment
-    from "./components/environment.js";    
-
-// =====================================================
-// Estado Global da Aplicação
-// =====================================================
-
-const App = {
-
-    analysis: null
-
-};
-
-// =====================================================
-// Inicialização
-// =====================================================
+// ======================================================================
+// Bootstrap
+// ======================================================================
 
 document.addEventListener(
     "DOMContentLoaded",
     initialize
 );
 
-// =====================================================
-// Bootstrap
-// =====================================================
+
+// ======================================================================
+// Inicialização
+// ======================================================================
 
 async function initialize() {
 
     try {
 
         console.log(
-            "CORE QAI Dashboard iniciado."
+            "CORE QAI Reference Dashboard RC3 iniciado."
         );
 
-        // =============================================
-        // Busca análise
-        // =============================================
 
-        App.analysis =
+        // ==============================================================
+        // Carrega análise
+        // ==============================================================
+
+        const analysis =
             await getLatestAnalysis();
 
-        console.log(
-            App.analysis
+
+        // ==============================================================
+        // Estado
+        // ==============================================================
+
+        App.setAnalysis(
+            analysis
         );
 
-        // =============================================
-        // Renderiza componentes
-        // =============================================
 
-        render();
+        // ==============================================================
+        // Renderização inicial
+        // ==============================================================
+
+        renderApplication();
+
+
+        console.log(
+            "CORE QAI RC3 carregado.",
+            App.getAnalysis()
+        );
 
     }
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            "Falha ao inicializar o CORE QAI Reference Dashboard.",
+            error
+        );
+
+        renderFatalError();
 
     }
 
 }
 
-// =====================================================
-// Renderização Geral
-// =====================================================
 
-function render() {
+// ======================================================================
+// Renderização da Aplicação
+// ======================================================================
+
+function renderApplication() {
+
+    const analysis =
+        App.getAnalysis();
+
+    const currentView =
+        App.getCurrentView();
+
+
+    // ==============================================================
+    // Containers permanentes
+    // ==============================================================
+
+    const headerContainer =
+        document.getElementById(
+            "header"
+        );
+
+    const navbarContainer =
+        document.getElementById(
+            "navbar"
+        );
+
+
+    // ==============================================================
+    // Header
+    // ==============================================================
 
     renderHeader(
-        App.analysis
-    );
-
-    renderScore(
-        App.analysis.metrics
-    );
-
-    renderDiagnostics(
-    App.analysis.diagnostics
-    );
-
-    renderHypotheses(
-        App.analysis.hypotheses
-    );
-    renderMitigations(
-        App.analysis.mitigations
-    );
-
-    renderMetrics(
-        App.analysis.metrics
+        headerContainer,
+        analysis
     );
 
 
-    renderEnvironment(
-        App.analysis.environment
+    // ==============================================================
+    // Navbar
+    // ==============================================================
+
+    renderNavbar(
+        navbarContainer,
+        currentView,
+        handleNavigate
     );
 
+
+    // ==============================================================
+    // Workspace
+    // ==============================================================
+
+    renderWorkspace(
+        currentView,
+        analysis
+    );
 
 }
 
+
+// ======================================================================
+// Navegação
+// ======================================================================
+
+function handleNavigate(
+    viewName
+) {
+
+    // ==============================================================
+    // Evita navegação redundante
+    // ==============================================================
+
+    if (
+        viewName ===
+        App.getCurrentView()
+    ) {
+
+        return;
+
+    }
+
+
+    // ==============================================================
+    // Atualiza estado
+    // ==============================================================
+
+    App.setCurrentView(
+        viewName
+    );
+
+
+    // ==============================================================
+    // Atualiza Navbar
+    // ==============================================================
+
+    const navbarContainer =
+        document.getElementById(
+            "navbar"
+        );
+
+    renderNavbar(
+        navbarContainer,
+        App.getCurrentView(),
+        handleNavigate
+    );
+
+
+    // ==============================================================
+    // Atualiza Workspace
+    // ==============================================================
+
+    renderWorkspace(
+        App.getCurrentView(),
+        App.getAnalysis()
+    );
+
+}
+
+
+// ======================================================================
+// Erro fatal
+// ======================================================================
+
+function renderFatalError() {
+
+    const workspace =
+        document.getElementById(
+            "workspace"
+        );
+
+    if (!workspace) {
+
+        return;
+
+    }
+
+    workspace.innerHTML = `
+
+        <section class="workspace-message">
+
+            <h1>
+                Não foi possível carregar o Dashboard
+            </h1>
+
+            <p>
+                O serviço de análise não respondeu corretamente.
+            </p>
+
+        </section>
+
+    `;
+
+}
