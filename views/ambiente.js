@@ -5,7 +5,7 @@
  * ----------------------------------------------------------------------
  * Arquivo : views/ambiente.js
  * Função  : Composição da View Ambiente
- * Versão  : RC3.0
+ * Versão  : RC4.0
  * ======================================================================
  */
 
@@ -30,7 +30,7 @@ import renderMetrics
 
 export default function renderAmbiente(
     workspace,
-    analysis
+    data
 ) {
 
     // ================================================================
@@ -48,7 +48,7 @@ export default function renderAmbiente(
     }
 
 
-    if (!analysis) {
+    if (!data) {
 
         renderEmptyState(
             workspace
@@ -57,6 +57,23 @@ export default function renderAmbiente(
         return;
 
     }
+
+
+    // ================================================================
+    // Estrutura do contrato
+    // ================================================================
+
+    const telemetry =
+        data.telemetry ?? {};
+
+    const analysis =
+        data.analysis ?? {};
+
+    const metrics =
+        analysis.metrics ?? {};
+
+    const validation =
+        analysis.validation ?? {};
 
 
     // ================================================================
@@ -159,19 +176,45 @@ export default function renderAmbiente(
 
 
     // ================================================================
-    // Renderização dos componentes RC2
+    // Renderização
     // ================================================================
 
+    /*
+     * Score:
+     * --------------------------------------------------------------
+     * Recebe exclusivamente as métricas produzidas pelo CORE.
+     */
+
     renderScore(
-        analysis.metrics
+        metrics
     );
+
+
+    /*
+     * Environment:
+     * --------------------------------------------------------------
+     * Recebe a telemetria persistida pelo SaaS.
+     *
+     * A validação também é disponibilizada para que o componente
+     * possa apresentar o estado produzido pelo CORE.
+     *
+     * O componente NÃO deve calcular esse estado.
+     */
 
     renderEnvironment(
-        analysis.environment
+        telemetry,
+        validation
     );
 
+
+    /*
+     * Metrics:
+     * --------------------------------------------------------------
+     * Recebe exclusivamente as métricas produzidas pelo CORE.
+     */
+
     renderMetrics(
-        analysis.metrics
+        metrics
     );
 
 }

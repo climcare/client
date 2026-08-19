@@ -3,31 +3,60 @@
  * CORE QAI
  * Reference Dashboard
  * ----------------------------------------------------------------------
- * Arquivo    : diagnostics.js
+ * Arquivo    : components/diagnostics.js
  * Componente : Diagnósticos
- * Versão     : RC2.2
+ * Versão     : RC4.1
  * ======================================================================
  */
 
 /**
- * Renderiza os diagnósticos recebidos pela API.
+ * Renderiza os diagnósticos produzidos pelo MIQAI_CORE.
  *
  * IMPORTANTE:
- * Este componente NÃO executa diagnóstico,
- * NÃO define prioridade e NÃO classifica severidade.
+ * Este componente NÃO:
  *
- * Todas essas informações são produzidas pelo CORE QAI.
+ * - executa diagnóstico;
+ * - calcula prioridade;
+ * - classifica severidade;
+ * - cria hipóteses;
+ * - interpreta evidências.
  *
- * @param {Object} diagnostics
+ * Todas as informações apresentadas são provenientes diretamente
+ * de analysis.diagnosis.
+ *
+ * Contrato atual:
+ *
+ * diagnosis
+ * ├── primary
+ * │   ├── id
+ * │   ├── name
+ * │   └── priority
+ * │
+ * ├── secondary[]
+ * │   ├── id
+ * │   ├── name
+ * │   ├── title       (quando disponível)
+ * │   ├── description (quando disponível)
+ * │   └── priority
+ * │
+ * └── matches[]
+ *
+ * @param {Object} diagnosis
  */
-export default function renderDiagnostics(diagnostics) {
+
+export default function renderDiagnostics(
+    diagnosis
+) {
 
     const container =
-        document.getElementById("diagnostics");
+        document.getElementById(
+            "diagnostics"
+        );
 
-    // =====================================================
+
+    // ================================================================
     // Validação do container
-    // =====================================================
+    // ================================================================
 
     if (!container) {
 
@@ -39,21 +68,37 @@ export default function renderDiagnostics(diagnostics) {
 
     }
 
-    // =====================================================
-    // Validação dos dados
-    // =====================================================
 
-    if (!diagnostics || !diagnostics.primary) {
+    // ================================================================
+    // Validação dos dados
+    // ================================================================
+
+    if (
+        !diagnosis ||
+        !diagnosis.primary
+    ) {
 
         container.innerHTML = `
 
             <div class="diagnostics-card">
 
-                <h2>
-                    Diagnósticos
-                </h2>
+                <div class="diagnostics-header">
 
-                <p>
+                    <div>
+
+                        <h2>
+                            Diagnósticos
+                        </h2>
+
+                        <p class="diagnostics-subtitle">
+                            Diagnósticos produzidos pelo MIQAI_CORE
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <p class="diagnostic-empty">
                     Nenhum diagnóstico disponível.
                 </p>
 
@@ -65,63 +110,153 @@ export default function renderDiagnostics(diagnostics) {
 
     }
 
-    // =====================================================
-    // Dados
-    // =====================================================
+
+    // ================================================================
+    // Dados oficiais
+    // ================================================================
 
     const primary =
-        diagnostics.primary;
+        diagnosis.primary;
+
 
     const secondary =
-        Array.isArray(diagnostics.secondary)
-            ? diagnostics.secondary
+        Array.isArray(
+            diagnosis.secondary
+        )
+            ? diagnosis.secondary
             : [];
 
-    // =====================================================
+
+    // ================================================================
+    // Diagnóstico principal
+    // ================================================================
+
+    const primaryId =
+        primary.id ??
+        null;
+
+
+    const primaryName =
+        primary.name ??
+        "Diagnóstico não identificado";
+
+
+    const primaryPriority =
+        primary.priority ??
+        null;
+
+
+    // ================================================================
     // Diagnósticos secundários
-    // =====================================================
+    // ================================================================
 
     const secondaryHTML =
         secondary.length > 0
 
-            ? secondary.map(item => `
+            ? secondary
+                .map(
+                    item => {
 
-                <article class="diagnostic-secondary-item">
+                        const id =
+                            item.id ??
+                            null;
 
-                    <div class="diagnostic-title-row">
+                        const name =
+                            item.name ??
+                            null;
 
-                        <span class="diagnostic-code">
-                            ${item.code ?? "N/D"}
-                        </span>
+                        const title =
+                            item.title ??
+                            name ??
+                            "Diagnóstico não identificado";
 
-                        <span class="diagnostic-severity">
-                            ${item.severity ?? "N/D"}
-                        </span>
+                        const description =
+                            item.description ??
+                            null;
 
-                    </div>
+                        const priority =
+                            item.priority ??
+                            null;
 
-                    <h3>
-                        ${item.name ?? "Diagnóstico não identificado"}
-                    </h3>
 
-                    <p>
-                        ${item.description ?? ""}
-                    </p>
+                        return `
 
-                    <div class="diagnostic-meta">
+                            <article
+                                class="diagnostic-secondary-item"
+                                data-diagnostic-id="${escapeHTML(id ?? "")}"
+                            >
 
-                        <span>
-                            Prioridade:
-                            <strong>
-                                ${item.priority ?? "N/D"}
-                            </strong>
-                        </span>
+                                <div
+                                    class="diagnostic-title-row"
+                                >
 
-                    </div>
+                                    <span
+                                        class="diagnostic-code"
+                                    >
+                                        ${escapeHTML(id ?? "N/D")}
+                                    </span>
 
-                </article>
 
-            `).join("")
+                                    ${
+                                        priority !== null
+                                            ? `
+                                                <span
+                                                    class="diagnostic-priority"
+                                                >
+                                                    Prioridade:
+                                                    <strong>
+                                                        ${escapeHTML(priority)}
+                                                    </strong>
+                                                </span>
+                                            `
+                                            : ""
+                                    }
+
+                                </div>
+
+
+                                <h3>
+                                    ${escapeHTML(title)}
+                                </h3>
+
+
+                                ${
+                                    description
+                                        ? `
+                                            <p>
+                                                ${escapeHTML(description)}
+                                            </p>
+                                        `
+                                        : ""
+                                }
+
+
+                                ${
+                                    name && name !== title
+                                        ? `
+                                            <div
+                                                class="diagnostic-meta"
+                                            >
+
+                                                <span>
+                                                    Identificador:
+                                                    <strong>
+                                                        ${escapeHTML(name)}
+                                                    </strong>
+                                                </span>
+
+                                            </div>
+                                        `
+                                        : ""
+                                }
+
+                            </article>
+
+                        `;
+
+                    }
+                )
+                .join("")
 
             : `
 
@@ -131,40 +266,40 @@ export default function renderDiagnostics(diagnostics) {
 
             `;
 
-    // =====================================================
+
+    // ================================================================
     // Renderização
-    // =====================================================
+    // ================================================================
 
     container.innerHTML = `
 
         <div class="diagnostics-card">
 
+
+            <!-- ==================================================== -->
+            <!-- CABEÇALHO -->
+            <!-- ==================================================== -->
+
             <div class="diagnostics-header">
 
-                <h2>
-                    Diagnósticos
-                </h2>
+                <div>
 
-                <div class="diagnostics-summary">
+                    <h2>
+                        Diagnósticos
+                    </h2>
 
-                    <span>
-                        Status:
-                        <strong>
-                            ${diagnostics.status ?? "N/D"}
-                        </strong>
-                    </span>
-
-                    <span>
-                        Confiança:
-                        <strong>
-                            ${diagnostics.confidence ?? "N/D"}%
-                        </strong>
-                    </span>
+                    <p class="diagnostics-subtitle">
+                        Diagnósticos produzidos pelo MIQAI_CORE
+                    </p>
 
                 </div>
 
             </div>
 
+
+            <!-- ==================================================== -->
+            <!-- DIAGNÓSTICO PRINCIPAL -->
+            <!-- ==================================================== -->
 
             <div class="diagnostic-section">
 
@@ -172,41 +307,52 @@ export default function renderDiagnostics(diagnostics) {
                     Diagnóstico Principal
                 </h3>
 
-                <article class="diagnostic-primary">
 
-                    <div class="diagnostic-title-row">
+                <article
+                    class="diagnostic-primary"
+                    data-diagnostic-id="${escapeHTML(primaryId ?? "")}"
+                >
 
-                        <span class="diagnostic-code">
-                            ${primary.code ?? "N/D"}
+                    <div
+                        class="diagnostic-title-row"
+                    >
+
+                        <span
+                            class="diagnostic-code"
+                        >
+                            ${escapeHTML(primaryId ?? "N/D")}
                         </span>
 
-                        <span class="diagnostic-severity">
-                            ${primary.severity ?? "N/D"}
-                        </span>
+
+                        ${
+                            primaryPriority !== null
+                                ? `
+                                    <span
+                                        class="diagnostic-priority"
+                                    >
+                                        Prioridade:
+                                        <strong>
+                                            ${escapeHTML(primaryPriority)}
+                                        </strong>
+                                    </span>
+                                `
+                                : ""
+                        }
 
                     </div>
 
+
                     <h3>
-                        ${primary.name ?? "Diagnóstico não identificado"}
+                        ${escapeHTML(primaryName)}
                     </h3>
 
-                    <p>
-                        ${primary.description ?? ""}
-                    </p>
 
                     <div class="diagnostic-meta">
 
                         <span>
-                            Categoria:
+                            Identificador:
                             <strong>
-                                ${primary.category ?? "N/D"}
-                            </strong>
-                        </span>
-
-                        <span>
-                            Prioridade:
-                            <strong>
-                                ${primary.priority ?? "N/D"}
+                                ${escapeHTML(primaryId ?? "N/D")}
                             </strong>
                         </span>
 
@@ -217,11 +363,16 @@ export default function renderDiagnostics(diagnostics) {
             </div>
 
 
+            <!-- ==================================================== -->
+            <!-- DIAGNÓSTICOS SECUNDÁRIOS -->
+            <!-- ==================================================== -->
+
             <div class="diagnostic-section">
 
                 <h3 class="diagnostic-section-title">
                     Diagnósticos Secundários
                 </h3>
+
 
                 <div class="diagnostic-secondary-list">
 
@@ -231,8 +382,47 @@ export default function renderDiagnostics(diagnostics) {
 
             </div>
 
+
         </div>
 
     `;
+
+}
+
+
+// ======================================================================
+// Segurança básica de saída
+// ======================================================================
+
+function escapeHTML(
+    value
+) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 
 }

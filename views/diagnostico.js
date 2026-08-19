@@ -5,7 +5,7 @@
  * ----------------------------------------------------------------------
  * Arquivo : views/diagnostico.js
  * Função  : Composição da View Diagnóstico
- * Versão  : RC3.0
+ * Versão  : RC4.1
  * ======================================================================
  */
 
@@ -30,7 +30,7 @@ import renderMitigations
 
 export default function renderDiagnostico(
     workspace,
-    analysis
+    data
 ) {
 
     // ================================================================
@@ -48,7 +48,7 @@ export default function renderDiagnostico(
     }
 
 
-    if (!analysis) {
+    if (!data) {
 
         renderEmptyState(
             workspace
@@ -57,6 +57,33 @@ export default function renderDiagnostico(
         return;
 
     }
+
+
+    // ================================================================
+    // Contrato oficial
+    // ================================================================
+
+    const analysis =
+        data.analysis ?? {};
+
+
+    /*
+     * O Reference Client NÃO interpreta o conteúdo analítico.
+     *
+     * Apenas separa os blocos do contrato oficial para entrega
+     * aos respectivos componentes visuais.
+     */
+
+    const diagnosis =
+        analysis.diagnosis ?? null;
+
+
+    const hypotheses =
+        analysis.hypotheses ?? null;
+
+
+    const mitigation =
+        analysis.mitigation ?? null;
 
 
     // ================================================================
@@ -159,19 +186,42 @@ export default function renderDiagnostico(
 
 
     // ================================================================
-    // Renderização dos componentes RC2
+    // Renderização
     // ================================================================
 
+    /*
+     * DIAGNOSIS
+     * --------------------------------------------------------------
+     * Bloco oficial produzido pelo MIQAI_CORE.
+     */
+
     renderDiagnostics(
-        analysis.diagnostics
+        diagnosis
     );
+
+
+    /*
+     * HYPOTHESES
+     * --------------------------------------------------------------
+     * Bloco oficial produzido pelo MIQAI_CORE.
+     */
 
     renderHypotheses(
-        analysis.hypotheses
+        hypotheses
     );
 
+
+    /*
+     * MITIGATION
+     * --------------------------------------------------------------
+     * Bloco oficial produzido pelo MIQAI_CORE.
+     *
+     * Atenção:
+     * O contrato oficial utiliza "mitigation" no singular.
+     */
+
     renderMitigations(
-        analysis.mitigations
+        mitigation
     );
 
 }

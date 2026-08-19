@@ -5,7 +5,7 @@
  * ----------------------------------------------------------------------
  * Arquivo : layout/workspace.js
  * Função  : Controlador da área dinâmica da aplicação
- * Versão  : RC3.0
+ * Versão  : RC4.0
  * ======================================================================
  */
 
@@ -33,13 +33,17 @@ import renderHistorico
 
 const views = {
 
-    ambiente: renderAmbiente,
+    ambiente:
+        renderAmbiente,
 
-    diagnostico: renderDiagnostico,
+    diagnostico:
+        renderDiagnostico,
 
-    evidencias: renderEvidencias,
+    evidencias:
+        renderEvidencias,
 
-    historico: renderHistorico
+    historico:
+        renderHistorico
 
 };
 
@@ -50,11 +54,14 @@ const views = {
 
 export default function renderWorkspace(
     viewName,
-    analysis
+    data
 ) {
 
     const workspace =
-        document.getElementById("workspace");
+        document.getElementById(
+            "workspace"
+        );
+
 
     // ================================================================
     // Validação do container
@@ -77,6 +84,7 @@ export default function renderWorkspace(
 
     const renderView =
         views[viewName];
+
 
     if (!renderView) {
 
@@ -109,7 +117,7 @@ export default function renderWorkspace(
 
         renderView(
             workspace,
-            analysis
+            data
         );
 
     }
@@ -141,7 +149,9 @@ function renderWorkspaceError(
 ) {
 
     const element =
-        document.createElement("section");
+        document.createElement(
+            "section"
+        );
 
     element.className =
         "workspace-message";

@@ -5,7 +5,7 @@
  * ----------------------------------------------------------------------
  * Arquivo : app/app.js
  * Função  : Estado central da aplicação
- * Versão  : RC3.0
+ * Versão  : RC4.0
  * ======================================================================
  */
 
@@ -13,11 +13,14 @@
 /**
  * Estado global do Reference Dashboard.
  *
- * Responsabilidades:
+ * O estado representa o payload completo recebido do MIQAI Server.
  *
- * - armazenar a análise recebida da API;
- * - armazenar a View atualmente ativa;
- * - fornecer acesso controlado ao estado da aplicação.
+ * Estrutura:
+ *
+ * data
+ * ├── device
+ * ├── telemetry
+ * └── analysis
  *
  * Este módulo NÃO:
  *
@@ -33,25 +36,26 @@ const App = {
     // Estado
     // =====================================================
 
-    analysis: null,
+    data: null,
 
     currentView: "ambiente",
 
 
     // =====================================================
-    // Analysis
+    // Data
     // =====================================================
 
-    setAnalysis(analysis) {
+    setData(data) {
 
-        this.analysis = analysis;
+        this.data =
+            data;
 
     },
 
 
-    getAnalysis() {
+    getData() {
 
-        return this.analysis;
+        return this.data;
 
     },
 
@@ -62,7 +66,8 @@ const App = {
 
     setCurrentView(view) {
 
-        this.currentView = view;
+        this.currentView =
+            view;
 
     },
 

@@ -4,20 +4,41 @@
  * Reference Dashboard
  * ----------------------------------------------------------------------
  * Arquivo : environment.js
- * Função  : Renderização das leituras ambientais recebidas do CORE
- * Versão  : RC2.1
+ * Função  : Renderização da telemetria ambiental recebida do Server
+ * Versão  : RC4.0
  * ======================================================================
  */
 
-
-// ======================================================================
-// Render principal
-// ======================================================================
-
-export default function renderEnvironment(environment) {
+/**
+ * Renderiza exclusivamente os valores de telemetria recebidos
+ * pelo contrato oficial do MIQAI Server.
+ *
+ * Este componente NÃO:
+ *
+ * - calcula métricas;
+ * - classifica parâmetros;
+ * - interpreta Domains;
+ * - aplica limites;
+ * - produz diagnóstico;
+ * - executa regras de negócio.
+ *
+ * A telemetria é apenas apresentada.
+ *
+ * @param {Object} telemetry
+ */
+export default function renderEnvironment(
+    telemetry
+) {
 
     const container =
-        document.getElementById("environment");
+        document.getElementById(
+            "environment"
+        );
+
+
+    // ==================================================================
+    // Validação do container
+    // ==================================================================
 
     if (!container) {
 
@@ -29,16 +50,27 @@ export default function renderEnvironment(environment) {
 
     }
 
-    if (!environment) {
+
+    // ==================================================================
+    // Validação da telemetria
+    // ==================================================================
+
+    if (!telemetry) {
 
         container.innerHTML = `
+
             <div class="component-card">
-                <h2>Leituras Ambientais</h2>
+
+                <h2>
+                    Leituras Ambientais
+                </h2>
 
                 <p class="empty-state">
                     Dados ambientais indisponíveis.
                 </p>
+
             </div>
+
         `;
 
         return;
@@ -57,11 +89,15 @@ export default function renderEnvironment(environment) {
             <div class="component-header">
 
                 <div>
-                    <h2>Leituras Ambientais</h2>
+
+                    <h2>
+                        Leituras Ambientais
+                    </h2>
 
                     <p class="component-subtitle">
-                        Valores ambientais utilizados na análise
+                        Telemetria recebida do dispositivo
                     </p>
+
                 </div>
 
             </div>
@@ -81,19 +117,19 @@ export default function renderEnvironment(environment) {
 
                     ${createMetric(
                         "Temperatura",
-                        environment.temperature,
+                        telemetry.temperature,
                         "°C"
                     )}
 
                     ${createMetric(
                         "Umidade",
-                        environment.humidity,
+                        telemetry.humidity,
                         "%"
                     )}
 
                     ${createMetric(
                         "CO₂",
-                        environment.co2,
+                        telemetry.co2,
                         "ppm"
                     )}
 
@@ -116,25 +152,25 @@ export default function renderEnvironment(environment) {
 
                     ${createMetric(
                         "PM1",
-                        environment.pm1,
+                        telemetry.pm1_0,
                         "µg/m³"
                     )}
 
                     ${createMetric(
                         "PM2.5",
-                        environment.pm25,
+                        telemetry.pm25,
                         "µg/m³"
                     )}
 
                     ${createMetric(
                         "PM4",
-                        environment.pm4,
+                        telemetry.pm4_0,
                         "µg/m³"
                     )}
 
                     ${createMetric(
                         "PM10",
-                        environment.pm10,
+                        telemetry.pm10,
                         "µg/m³"
                     )}
 
@@ -157,13 +193,13 @@ export default function renderEnvironment(environment) {
 
                     ${createMetric(
                         "VOC Index",
-                        environment.vocIndex,
+                        telemetry.vocIndex,
                         ""
                     )}
 
                     ${createMetric(
                         "NOx Index",
-                        environment.noxIndex,
+                        telemetry.noxIndex,
                         ""
                     )}
 
@@ -186,31 +222,31 @@ export default function renderEnvironment(environment) {
 
                     ${createMetric(
                         "NC0.5",
-                        environment.nc0_5,
+                        telemetry.nc0_5,
                         "#/cm³"
                     )}
 
                     ${createMetric(
                         "NC1.0",
-                        environment.nc1_0,
+                        telemetry.nc1_0,
                         "#/cm³"
                     )}
 
                     ${createMetric(
                         "NC2.5",
-                        environment.nc2_5,
+                        telemetry.nc2_5,
                         "#/cm³"
                     )}
 
                     ${createMetric(
                         "NC4.0",
-                        environment.nc4_0,
+                        telemetry.nc4_0,
                         "#/cm³"
                     )}
 
                     ${createMetric(
                         "NC10",
-                        environment.nc10_0,
+                        telemetry.nc10_0,
                         "#/cm³"
                     )}
 
@@ -233,7 +269,7 @@ export default function renderEnvironment(environment) {
 
                     ${createMetric(
                         "Tamanho Típico",
-                        environment.typicalParticleSize,
+                        telemetry.typicalSize,
                         "µm"
                     )}
 
@@ -241,7 +277,43 @@ export default function renderEnvironment(environment) {
 
             </div>
 
+
+            <!-- ====================================================== -->
+            <!-- SINAL -->
+            <!-- ====================================================== -->
+
+            <div class="section-block">
+
+                <h3 class="section-title">
+                    CONECTIVIDADE
+                </h3>
+
+                <div class="environment-grid">
+
+                    ${createMetric(
+                        "Sinal",
+                        telemetry.signalStrength,
+                        "dBm"
+                    )}
+
+                </div>
+
+            </div>
+
+
+            <!-- ====================================================== -->
+            <!-- TIMESTAMP -->
+            <!-- ====================================================== -->
+
+            <div class="telemetry-timestamp">
+
+                Última leitura:
+                ${formatTimestamp(telemetry.timestamp)}
+
+            </div>
+
         </div>
+
     `;
 
 }
@@ -259,6 +331,7 @@ function createMetric(
 
     const displayValue =
         formatValue(value);
+
 
     return `
 
@@ -291,17 +364,30 @@ function createMetric(
 // Formatação segura
 // ======================================================================
 
-function formatValue(value) {
+function formatValue(
+    value
+) {
 
     if (
         value === null ||
         value === undefined ||
-        Number.isNaN(value)
+        value === ""
     ) {
 
         return "N/D";
 
     }
+
+
+    if (
+        typeof value === "number" &&
+        !Number.isFinite(value)
+    ) {
+
+        return "N/D";
+
+    }
+
 
     if (
         typeof value === "number" &&
@@ -314,6 +400,48 @@ function formatValue(value) {
 
     }
 
+
     return value;
+
+}
+
+
+// ======================================================================
+// Timestamp
+// ======================================================================
+
+function formatTimestamp(
+    timestamp
+) {
+
+    if (!timestamp) {
+
+        return "N/D";
+
+    }
+
+
+    const date =
+        new Date(timestamp);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return timestamp;
+
+    }
+
+
+    return date.toLocaleString(
+        "pt-BR",
+        {
+            dateStyle: "short",
+            timeStyle: "medium"
+        }
+    );
 
 }

@@ -3,34 +3,43 @@
  * CORE QAI
  * Reference Dashboard
  * ----------------------------------------------------------------------
- * Arquivo    : metrics.js
+ * Arquivo    : components/metrics.js
  * Componente : Métricas Analíticas
- * Versão     : RC2.5
+ * Versão     : RC4.0
  * ======================================================================
  */
 
 /**
- * Renderiza as métricas analíticas recebidas da API.
+ * Renderiza as métricas analíticas produzidas pelo MIQAI_CORE.
  *
  * IMPORTANTE:
- * Este componente NÃO calcula métricas,
- * NÃO classifica parâmetros,
- * NÃO calcula sintomas e
- * NÃO executa regras de negócio.
+ * Este componente NÃO:
  *
- * Todas as informações apresentadas
- * são produzidas pelo CORE QAI.
+ * - calcula métricas;
+ * - classifica parâmetros;
+ * - aplica regras;
+ * - calcula scores;
+ * - interpreta sintomas.
+ *
+ * Todas as informações apresentadas são provenientes
+ * diretamente de analysis.metrics.
  *
  * @param {Object} metrics
  */
-export default function renderMetrics(metrics) {
+
+export default function renderMetrics(
+    metrics
+) {
 
     const container =
-        document.getElementById("metrics");
+        document.getElementById(
+            "metrics"
+        );
 
-    // =====================================================
+
+    // ================================================================
     // Validação do container
-    // =====================================================
+    // ================================================================
 
     if (!container) {
 
@@ -42,9 +51,10 @@ export default function renderMetrics(metrics) {
 
     }
 
-    // =====================================================
+
+    // ================================================================
     // Validação dos dados
-    // =====================================================
+    // ================================================================
 
     if (!metrics) {
 
@@ -68,105 +78,173 @@ export default function renderMetrics(metrics) {
 
     }
 
-    // =====================================================
-    // Dados
-    // =====================================================
 
-    const individual =
-        metrics.analiseIndividual &&
-        typeof metrics.analiseIndividual === "object"
+    // ================================================================
+    // Indicadores oficiais do CORE
+    // ================================================================
 
-            ? metrics.analiseIndividual
+    const indicators = [
 
-            : {};
+        {
+            key:
+                "thermalComfort",
 
-    const symptoms =
-        metrics.sintomas &&
-        typeof metrics.sintomas === "object"
+            label:
+                "Conforto Térmico"
+        },
 
-            ? metrics.sintomas
+        {
+            key:
+                "airQuality",
 
-            : {};
+            label:
+                "Qualidade do Ar"
+        },
 
-    // =====================================================
-    // Análise individual
-    // =====================================================
+        {
+            key:
+                "particulateLoad",
 
-    const individualEntries =
-        Object.entries(individual);
+            label:
+                "Carga de Partículas"
+        },
 
-    const individualHTML =
-        individualEntries.length > 0
+        {
+            key:
+                "occupancy",
 
-            ? individualEntries.map(
-                ([parameter, state]) => `
+            label:
+                "Ocupação"
+        },
 
-                    <article class="metric-item">
+        {
+            key:
+                "qaiScore",
 
-                        <span class="metric-parameter">
-                            ${formatParameter(parameter)}
-                        </span>
+            label:
+                "QAI Score"
+        },
 
-                        <strong class="metric-state">
-                            ${state ?? "N/D"}
-                        </strong>
+        {
+            key:
+                "healthRisk",
 
-                    </article>
+            label:
+                "Risco à Saúde"
+        }
 
-                `
-            ).join("")
+    ];
 
-            : `
 
-                <p class="metric-empty">
-                    Nenhuma análise individual disponível.
-                </p>
+    // ================================================================
+    // Renderização dos indicadores
+    // ================================================================
 
-            `;
+    const indicatorsHTML =
+        indicators
+            .map(
+                indicator => {
 
-    // =====================================================
-    // Indicadores de sintomas
-    // =====================================================
+                    const value =
+                        metrics[
+                            indicator.key
+                        ] ?? {};
 
-    const symptomEntries =
-        Object.entries(symptoms);
 
-    const symptomsHTML =
-        symptomEntries.length > 0
+                    const score =
+                        value.score ?? "N/D";
 
-            ? symptomEntries.map(
-                ([symptom, value]) => `
 
-                    <article class="symptom-item">
+                    const level =
+                        value.level ?? "N/D";
 
-                        <span class="symptom-label">
-                            ${formatSymptom(symptom)}
-                        </span>
 
-                        <strong class="symptom-value">
-                            ${value ?? "N/D"}
-                        </strong>
+                    const dominantFactor =
+                        value.dominantFactor ??
+                        null;
 
-                    </article>
 
-                `
-            ).join("")
+                    return `
 
-            : `
+                        <article
+                            class="metric-item"
+                            data-metric="${indicator.key}"
+                        >
 
-                <p class="metric-empty">
-                    Nenhum indicador disponível.
-                </p>
+                            <div
+                                class="metric-item-header"
+                            >
 
-            `;
+                                <span
+                                    class="metric-parameter"
+                                >
+                                    ${indicator.label}
+                                </span>
 
-    // =====================================================
+                            </div>
+
+
+                            <div
+                                class="metric-item-body"
+                            >
+
+                                <strong
+                                    class="metric-score"
+                                >
+                                    ${score}
+                                </strong>
+
+
+                                <span
+                                    class="metric-state"
+                                >
+                                    ${escapeHTML(level)}
+                                </span>
+
+                            </div>
+
+
+                            ${
+                                dominantFactor
+                                    ? `
+
+                                        <div
+                                            class="metric-dominant-factor"
+                                        >
+
+                                            <span>
+                                                Fator dominante
+                                            </span>
+
+                                            <strong>
+                                                ${escapeHTML(
+                                                    dominantFactor
+                                                )}
+                                            </strong>
+
+                                        </div>
+
+                                    `
+                                    : ""
+                            }
+
+                        </article>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+
+    // ================================================================
     // Renderização
-    // =====================================================
+    // ================================================================
 
     container.innerHTML = `
 
         <div class="metrics-card">
+
 
             <div class="metrics-header">
 
@@ -177,7 +255,7 @@ export default function renderMetrics(metrics) {
                     </h2>
 
                     <p class="metrics-subtitle">
-                        Indicadores derivados da análise ambiental
+                        Indicadores produzidos pelo MIQAI_CORE
                     </p>
 
                 </div>
@@ -185,76 +263,25 @@ export default function renderMetrics(metrics) {
             </div>
 
 
-            <div class="metrics-summary">
+            <div class="metrics-grid">
 
-                <article class="metric-summary-item">
-
-                    <span class="metric-summary-label">
-                        Ponto de Orvalho
-                    </span>
-
-                    <strong class="metric-summary-value">
-
-                        ${
-                            metrics.pontoOrvalho !== undefined
-                                ? `${metrics.pontoOrvalho} °C`
-                                : "N/D"
-                        }
-
-                    </strong>
-
-                </article>
-
-
-                <article class="metric-summary-item">
-
-                    <span class="metric-summary-label">
-                        Score Geral
-                    </span>
-
-                    <strong class="metric-summary-value">
-
-                        ${
-                            metrics.scoreGeral !== undefined
-                                ? metrics.scoreGeral
-                                : "N/D"
-                        }
-
-                    </strong>
-
-                </article>
+                ${indicatorsHTML}
 
             </div>
 
 
-            <div class="metrics-section">
+            <div class="metrics-source">
 
-                <h3 class="metrics-section-title">
-                    Análise Individual
-                </h3>
+                <span>
+                    Fonte analítica:
+                </span>
 
-                <div class="metrics-grid">
-
-                    ${individualHTML}
-
-                </div>
+                <strong>
+                    MIQAI_CORE
+                </strong>
 
             </div>
 
-
-            <div class="metrics-section">
-
-                <h3 class="metrics-section-title">
-                    Indicadores de Sintomas
-                </h3>
-
-                <div class="symptoms-grid">
-
-                    ${symptomsHTML}
-
-                </div>
-
-            </div>
 
         </div>
 
@@ -263,55 +290,39 @@ export default function renderMetrics(metrics) {
 }
 
 
-// =====================================================
-// Formatação dos parâmetros
-// =====================================================
+// ======================================================================
+// Segurança básica de saída
+// ======================================================================
 
-function formatParameter(parameter) {
+function escapeHTML(
+    value
+) {
 
-    const labels = {
+    return String(value)
 
-        temperatura: "Temperatura",
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
 
-        umidade: "Umidade",
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
 
-        co2: "CO₂",
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
 
-        pm1: "PM1",
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
 
-        pm25: "PM2.5",
-
-        pm4: "PM4",
-
-        pm10: "PM10",
-
-        vocIndex: "VOC Index",
-
-        noxIndex: "NOx Index"
-
-    };
-
-    return labels[parameter] ?? parameter;
-
-}
-
-
-// =====================================================
-// Formatação dos sintomas
-// =====================================================
-
-function formatSymptom(symptom) {
-
-    const labels = {
-
-        fadiga: "Fadiga",
-
-        alergia: "Alergia",
-
-        desconforto: "Desconforto"
-
-    };
-
-    return labels[symptom] ?? symptom;
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 
 }

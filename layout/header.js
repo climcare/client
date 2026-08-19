@@ -5,7 +5,7 @@
  * ----------------------------------------------------------------------
  * Arquivo : layout/header.js
  * Função  : Header operacional permanente da aplicação
- * Versão  : RC3.0
+ * Versão  : RC4.0
  * ======================================================================
  */
 
@@ -13,7 +13,8 @@
 /**
  * Renderiza o Header operacional.
  *
- * O Header apresenta contexto da aplicação e da análise.
+ * O Header apresenta apenas informações fornecidas
+ * pelo contrato JSON do MIQAI Server.
  *
  * IMPORTANTE:
  *
@@ -23,11 +24,12 @@
  * - não realiza chamadas à API.
  *
  * @param {HTMLElement} container
- * @param {Object} analysis
+ * @param {Object} data
  */
+
 export default function renderHeader(
     container,
-    analysis
+    data
 ) {
 
     // ================================================================
@@ -46,24 +48,61 @@ export default function renderHeader(
 
 
     // ================================================================
-    // Dados
+    // Estrutura do contrato
     // ================================================================
+
+    const device =
+        data?.device ?? {};
+
+    const telemetry =
+        data?.telemetry ?? {};
+
+    const analysis =
+        data?.analysis ?? {};
 
     const metadata =
         analysis?.metadata ?? {};
 
-    const origin =
-        analysis?.origin ?? {};
+    const domain =
+        analysis?.domain ?? {};
+
+
+    // ================================================================
+    // Identificação
+    // ================================================================
 
     const deviceId =
-        origin.deviceId ?? "Dispositivo não identificado";
+        device.deviceId ??
+        "Dispositivo não identificado";
 
-    const domain =
-        metadata.domain ?? "N/D";
+
+    // ================================================================
+    // Domain
+    // ================================================================
+
+    const domainName =
+        domain.name ??
+        metadata.environment ??
+        "N/D";
+
+
+    // ================================================================
+    // Status
+    // ================================================================
+
+    const status =
+        metadata.status ??
+        "N/D";
+
+
+    // ================================================================
+    // Timestamp
+    // ================================================================
 
     const timestamp =
         formatTimestamp(
-            origin.timestamp
+            telemetry.timestamp ??
+            metadata.timestamp
         );
 
 
@@ -129,7 +168,7 @@ export default function renderHeader(
                     </span>
 
                     <strong class="header-context-value">
-                        ${escapeHTML(domain)}
+                        ${escapeHTML(domainName)}
                     </strong>
 
                 </div>
@@ -151,7 +190,7 @@ export default function renderHeader(
                     ></span>
 
                     <span>
-                        ONLINE
+                        ${escapeHTML(status)}
                     </span>
 
                 </div>
@@ -254,8 +293,10 @@ function formatTimestamp(
 
     }
 
+
     const date =
         new Date(value);
+
 
     if (
         Number.isNaN(
@@ -266,6 +307,7 @@ function formatTimestamp(
         return "N/D";
 
     }
+
 
     return new Intl.DateTimeFormat(
         "pt-BR",
@@ -314,5 +356,3 @@ function escapeHTML(
         );
 
 }
-
-

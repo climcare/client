@@ -5,17 +5,38 @@
  * ----------------------------------------------------------------------
  * Arquivo : api.js
  * Serviço : CORE API
- * Versão  : RC2.1
+ * Versão  : RC3.1
  * ======================================================================
  */
 
 const API_URL =
-    "https://core-qai-runtime.onrender.com";
+    "https://miqai-server.onrender.com";
 
-export async function getLatestAnalysis() {
+
+export async function getLatestAnalysis(
+    deviceId
+) {
+
+    if (
+        deviceId === null ||
+        deviceId === undefined ||
+        deviceId === ""
+    ) {
+
+        throw new Error(
+            "deviceId é obrigatório."
+        );
+
+    }
+
+
+    const url =
+        `${API_URL}/?deviceId=${encodeURIComponent(deviceId)}`;
+
 
     const response =
-        await fetch(API_URL);
+        await fetch(url);
+
 
     if (!response.ok) {
 
@@ -24,6 +45,7 @@ export async function getLatestAnalysis() {
         );
 
     }
+
 
     return await response.json();
 

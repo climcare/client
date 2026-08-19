@@ -3,29 +3,42 @@
  * CORE QAI
  * Reference Dashboard
  * ----------------------------------------------------------------------
- * Arquivo    : score.js
+ * Arquivo    : components/score.js
  * Componente : Score Geral
- * Versão     : RC2.1
+ * Versão     : RC4.0
  * ======================================================================
  */
 
 /**
- * Renderiza o score geral recebido pela API.
+ * Renderiza o QAI Score produzido pelo MIQAI_CORE.
  *
  * IMPORTANTE:
  * Este componente NÃO calcula o score.
- * O valor é produzido pelo CORE QAI e apenas apresentado aqui.
+ * Não aplica faixas.
+ * Não interpreta valores.
+ *
+ * Apenas apresenta:
+ *
+ * metrics.qaiScore.score
+ * metrics.qaiScore.level
+ * metrics.qaiScore.dominantFactor
  *
  * @param {Object} metrics
  */
-export default function renderScore(metrics) {
+
+export default function renderScore(
+    metrics
+) {
 
     const container =
-        document.getElementById("score");
+        document.getElementById(
+            "score"
+        );
 
-    // =====================================================
+
+    // ================================================================
     // Validação
-    // =====================================================
+    // ================================================================
 
     if (!container) {
 
@@ -37,27 +50,49 @@ export default function renderScore(metrics) {
 
     }
 
+
     if (!metrics) {
 
         container.innerHTML = `
-            <h2>Score Geral</h2>
-            <p>Score não disponível.</p>
+
+            <h2>
+                Score Geral
+            </h2>
+
+            <p>
+                Score não disponível.
+            </p>
+
         `;
 
         return;
 
     }
 
-    // =====================================================
-    // Dados
-    // =====================================================
+
+    // ================================================================
+    // QAI Score
+    // ================================================================
+
+    const qaiScore =
+        metrics.qaiScore ?? {};
+
 
     const score =
-        metrics.scoreGeral;
+        qaiScore.score ?? null;
 
-    // =====================================================
+
+    const level =
+        qaiScore.level ?? null;
+
+
+    const dominantFactor =
+        qaiScore.dominantFactor ?? null;
+
+
+    // ================================================================
     // Renderização
-    // =====================================================
+    // ================================================================
 
     container.innerHTML = `
 
@@ -75,11 +110,20 @@ export default function renderScore(metrics) {
 
             </div>
 
+
             <div class="score-value">
 
                 ${score ?? "N/D"}
 
             </div>
+
+
+            <div class="score-level">
+
+                ${level ?? "N/D"}
+
+            </div>
+
 
             <div class="score-scale">
 
@@ -93,8 +137,67 @@ export default function renderScore(metrics) {
 
             </div>
 
+
+            ${
+                dominantFactor
+                    ? `
+                        <div class="score-dominant-factor">
+
+                            <span>
+                                Fator dominante
+                            </span>
+
+                            <strong>
+                                ${escapeHTML(
+                                    dominantFactor
+                                )}
+                            </strong>
+
+                        </div>
+                    `
+                    : ""
+            }
+
         </div>
 
     `;
+
+}
+
+
+// ======================================================================
+// Segurança básica de saída
+// ======================================================================
+
+function escapeHTML(
+    value
+) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 
 }

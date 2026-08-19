@@ -5,7 +5,7 @@
  * ----------------------------------------------------------------------
  * Arquivo : script.js
  * Função  : Bootstrap e controle principal da aplicação
- * Versão  : RC3.0
+ * Versão  : RC4.0
  * ======================================================================
  */
 
@@ -59,24 +59,24 @@ async function initialize() {
     try {
 
         console.log(
-            "CORE QAI Reference Dashboard RC3 iniciado."
+            "CORE QAI Reference Dashboard RC4 iniciado."
         );
 
 
         // ==============================================================
-        // Carrega análise
+        // Carrega payload completo do MIQAI Server
         // ==============================================================
 
-        const analysis =
-            await getLatestAnalysis();
+        const data =
+            await getLatestAnalysis("10");
 
 
         // ==============================================================
         // Estado
         // ==============================================================
 
-        App.setAnalysis(
-            analysis
+        App.setData(
+            data
         );
 
 
@@ -88,8 +88,8 @@ async function initialize() {
 
 
         console.log(
-            "CORE QAI RC3 carregado.",
-            App.getAnalysis()
+            "CORE QAI RC4 carregado.",
+            App.getData()
         );
 
     }
@@ -114,8 +114,8 @@ async function initialize() {
 
 function renderApplication() {
 
-    const analysis =
-        App.getAnalysis();
+    const data =
+        App.getData();
 
     const currentView =
         App.getCurrentView();
@@ -142,7 +142,7 @@ function renderApplication() {
 
     renderHeader(
         headerContainer,
-        analysis
+        data
     );
 
 
@@ -163,7 +163,7 @@ function renderApplication() {
 
     renderWorkspace(
         currentView,
-        analysis
+        data
     );
 
 }
@@ -222,7 +222,7 @@ function handleNavigate(
 
     renderWorkspace(
         App.getCurrentView(),
-        App.getAnalysis()
+        App.getData()
     );
 
 }
@@ -244,6 +244,7 @@ function renderFatalError() {
         return;
 
     }
+
 
     workspace.innerHTML = `
 

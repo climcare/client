@@ -5,31 +5,55 @@
  * ----------------------------------------------------------------------
  * Arquivo    : mitigations.js
  * Componente : Mitigações
- * Versão     : RC2.4
+ * Versão     : RC4.1
  * ======================================================================
  */
 
 /**
- * Renderiza as mitigações recebidas pela API.
+ * Renderiza as mitigações produzidas pelo MIQAI_CORE.
  *
  * IMPORTANTE:
- * Este componente NÃO cria ações,
- * NÃO define prioridades,
- * NÃO seleciona mitigações e
- * NÃO executa regras de negócio.
+ * Este componente NÃO:
  *
- * Todas essas informações são produzidas pelo CORE QAI.
+ * - cria ações;
+ * - define prioridades;
+ * - seleciona mitigações;
+ * - executa regras de negócio.
  *
- * @param {Object} mitigations
+ * Todas as informações apresentadas são provenientes diretamente
+ * de analysis.mitigation.
+ *
+ * Contrato oficial:
+ *
+ * mitigation
+ * ├── primary
+ * │   ├── id
+ * │   ├── name
+ * │   ├── title
+ * │   ├── description
+ * │   ├── referenceIds[]
+ * │   └── priority
+ * │
+ * ├── secondary[]
+ * │
+ * └── actions[]
+ *
+ * @param {Object} mitigation
  */
-export default function renderMitigations(mitigations) {
+
+export default function renderMitigations(
+    mitigation
+) {
 
     const container =
-        document.getElementById("mitigations");
+        document.getElementById(
+            "mitigations"
+        );
 
-    // =====================================================
+
+    // ================================================================
     // Validação do container
-    // =====================================================
+    // ================================================================
 
     if (!container) {
 
@@ -41,21 +65,37 @@ export default function renderMitigations(mitigations) {
 
     }
 
-    // =====================================================
-    // Validação dos dados
-    // =====================================================
 
-    if (!mitigations || !mitigations.primary) {
+    // ================================================================
+    // Validação dos dados
+    // ================================================================
+
+    if (
+        !mitigation ||
+        !mitigation.primary
+    ) {
 
         container.innerHTML = `
 
             <div class="mitigations-card">
 
-                <h2>
-                    Mitigações
-                </h2>
+                <div class="mitigations-header">
 
-                <p>
+                    <div>
+
+                        <h2>
+                            Mitigações
+                        </h2>
+
+                        <p class="mitigations-subtitle">
+                            Ações recomendadas pelo MIQAI_CORE
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <p class="mitigation-empty">
                     Nenhuma mitigação disponível.
                 </p>
 
@@ -67,25 +107,93 @@ export default function renderMitigations(mitigations) {
 
     }
 
-    // =====================================================
-    // Dados
-    // =====================================================
+
+    // ================================================================
+    // Dados oficiais
+    // ================================================================
 
     const primary =
-        mitigations.primary;
+        mitigation.primary;
+
 
     const secondary =
-        Array.isArray(mitigations.secondary)
-            ? mitigations.secondary
+        Array.isArray(
+            mitigation.secondary
+        )
+            ? mitigation.secondary
             : [];
 
-    // =====================================================
-    // Função auxiliar para renderizar ações
-    // =====================================================
 
-    function renderActions(actions) {
+    const actions =
+        Array.isArray(
+            mitigation.actions
+        )
+            ? mitigation.actions
+            : [];
 
-        if (!Array.isArray(actions) || actions.length === 0) {
+
+    // ================================================================
+    // Referências
+    // ================================================================
+
+    function renderReferences(
+        referenceIds
+    ) {
+
+        if (
+            !Array.isArray(referenceIds) ||
+            referenceIds.length === 0
+        ) {
+
+            return "";
+
+        }
+
+
+        return `
+
+            <div class="mitigation-references">
+
+                <span class="mitigation-references-label">
+                    Referências
+                </span>
+
+                <div class="mitigation-reference-list">
+
+                    ${
+                        referenceIds
+                            .map(
+                                referenceId => `
+                                    <span
+                                        class="mitigation-reference"
+                                    >
+                                        ${escapeHTML(
+                                            referenceId
+                                        )}
+                                    </span>
+                                `
+                            )
+                            .join("")
+                    }
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    // ================================================================
+    // Renderização das ações oficiais
+    // ================================================================
+
+    function renderActions() {
+
+        if (
+            actions.length === 0
+        ) {
 
             return `
 
@@ -97,82 +205,222 @@ export default function renderMitigations(mitigations) {
 
         }
 
+
         return `
 
-            <ul class="mitigation-actions-list">
+            <div class="mitigation-actions-list">
 
-                ${actions.map(action => `
+                ${
+                    actions
+                        .map(
+                            action => `
 
-                    <li>
-                        ${action}
-                    </li>
+                                <article
+                                    class="mitigation-action-item"
+                                    data-action-id="${escapeHTML(
+                                        action.id ?? ""
+                                    )}"
+                                >
 
-                `).join("")}
+                                    <div
+                                        class="mitigation-title-row"
+                                    >
 
-            </ul>
+                                        <span
+                                            class="mitigation-code"
+                                        >
+                                            ${escapeHTML(
+                                                action.id ?? "N/D"
+                                            )}
+                                        </span>
+
+
+                                        ${
+                                            action.priority !== undefined
+                                                ? `
+                                                    <span
+                                                        class="mitigation-priority"
+                                                    >
+                                                        Prioridade:
+                                                        <strong>
+                                                            ${escapeHTML(
+                                                                action.priority
+                                                            )}
+                                                        </strong>
+                                                    </span>
+                                                `
+                                                : ""
+                                        }
+
+                                    </div>
+
+
+                                    <h4>
+                                        ${escapeHTML(
+                                            action.title ??
+                                            action.name ??
+                                            "Ação não identificada"
+                                        )}
+                                    </h4>
+
+
+                                    ${
+                                        action.name
+                                            ? `
+                                                <div
+                                                    class="mitigation-meta"
+                                                >
+
+                                                    <span>
+                                                        Identificador:
+                                                        <strong>
+                                                            ${escapeHTML(
+                                                                action.name
+                                                            )}
+                                                        </strong>
+                                                    </span>
+
+                                                </div>
+                                            `
+                                            : ""
+                                    }
+
+
+                                    ${
+                                        action.description
+                                            ? `
+                                                <p>
+                                                    ${escapeHTML(
+                                                        action.description
+                                                    )}
+                                                </p>
+                                            `
+                                            : ""
+                                    }
+
+
+                                    ${renderReferences(
+                                        action.referenceIds
+                                    )}
+
+                                </article>
+
+                            `
+                        )
+                        .join("")
+                }
+
+            </div>
 
         `;
 
     }
 
-    // =====================================================
+
+    // ================================================================
     // Mitigações secundárias
-    // =====================================================
+    // ================================================================
 
     const secondaryHTML =
         secondary.length > 0
 
-            ? secondary.map(item => `
+            ? secondary
+                .map(
+                    item => `
 
-                <article class="mitigation-secondary-item">
+                        <article
+                            class="mitigation-secondary-item"
+                            data-mitigation-id="${escapeHTML(
+                                item.id ?? ""
+                            )}"
+                        >
 
-                    <div class="mitigation-title-row">
+                            <div
+                                class="mitigation-title-row"
+                            >
 
-                        <span class="mitigation-code">
-                            ${item.code ?? "N/D"}
-                        </span>
+                                <span
+                                    class="mitigation-code"
+                                >
+                                    ${escapeHTML(
+                                        item.id ?? "N/D"
+                                    )}
+                                </span>
 
-                        <span class="mitigation-priority">
-                            Prioridade:
-                            <strong>
-                                ${item.priority ?? "N/D"}
-                            </strong>
-                        </span>
 
-                    </div>
+                                ${
+                                    item.priority !== undefined
+                                        ? `
+                                            <span
+                                                class="mitigation-priority"
+                                            >
+                                                Prioridade:
+                                                <strong>
+                                                    ${escapeHTML(
+                                                        item.priority
+                                                    )}
+                                                </strong>
+                                            </span>
+                                        `
+                                        : ""
+                                }
 
-                    <h3>
-                        ${item.name ?? "Mitigação não identificada"}
-                    </h3>
+                            </div>
 
-                    <p>
-                        ${item.description ?? ""}
-                    </p>
 
-                    <div class="mitigation-meta">
+                            <h3>
+                                ${escapeHTML(
+                                    item.title ??
+                                    item.name ??
+                                    "Mitigação não identificada"
+                                )}
+                            </h3>
 
-                        <span>
-                            Categoria:
-                            <strong>
-                                ${item.category ?? "N/D"}
-                            </strong>
-                        </span>
 
-                    </div>
+                            ${
+                                item.name
+                                    ? `
+                                        <div
+                                            class="mitigation-meta"
+                                        >
 
-                    <div class="mitigation-actions">
+                                            <span>
+                                                Identificador:
+                                                <strong>
+                                                    ${escapeHTML(
+                                                        item.name
+                                                    )}
+                                                </strong>
+                                            </span>
 
-                        <strong class="mitigation-actions-title">
-                            Ações recomendadas
-                        </strong>
+                                        </div>
+                                    `
+                                    : ""
+                            }
 
-                        ${renderActions(item.actions)}
 
-                    </div>
+                            ${
+                                item.description
+                                    ? `
+                                        <p>
+                                            ${escapeHTML(
+                                                item.description
+                                            )}
+                                        </p>
+                                    `
+                                    : ""
+                            }
 
-                </article>
 
-            `).join("")
+                            ${renderReferences(
+                                item.referenceIds
+                            )}
+
+                        </article>
+
+                    `
+                )
+                .join("")
 
             : `
 
@@ -182,22 +430,40 @@ export default function renderMitigations(mitigations) {
 
             `;
 
-    // =====================================================
+
+    // ================================================================
     // Renderização
-    // =====================================================
+    // ================================================================
 
     container.innerHTML = `
 
         <div class="mitigations-card">
 
+
+            <!-- ==================================================== -->
+            <!-- CABEÇALHO -->
+            <!-- ==================================================== -->
+
             <div class="mitigations-header">
 
-                <h2>
-                    Mitigações
-                </h2>
+                <div>
+
+                    <h2>
+                        Mitigações
+                    </h2>
+
+                    <p class="mitigations-subtitle">
+                        Ações recomendadas pelo MIQAI_CORE
+                    </p>
+
+                </div>
 
             </div>
 
+
+            <!-- ==================================================== -->
+            <!-- MITIGAÇÃO PRINCIPAL -->
+            <!-- ==================================================== -->
 
             <div class="mitigation-section">
 
@@ -205,56 +471,119 @@ export default function renderMitigations(mitigations) {
                     Mitigação Principal
                 </h3>
 
-                <article class="mitigation-primary">
 
-                    <div class="mitigation-title-row">
+                <article
+                    class="mitigation-primary"
+                    data-mitigation-id="${escapeHTML(
+                        primary.id ?? ""
+                    )}"
+                >
 
-                        <span class="mitigation-code">
-                            ${primary.code ?? "N/D"}
+                    <div
+                        class="mitigation-title-row"
+                    >
+
+                        <span
+                            class="mitigation-code"
+                        >
+                            ${escapeHTML(
+                                primary.id ?? "N/D"
+                            )}
                         </span>
 
-                        <span class="mitigation-priority">
-                            Prioridade:
-                            <strong>
-                                ${primary.priority ?? "N/D"}
-                            </strong>
-                        </span>
+
+                        ${
+                            primary.priority !== undefined
+                                ? `
+                                    <span
+                                        class="mitigation-priority"
+                                    >
+                                        Prioridade:
+                                        <strong>
+                                            ${escapeHTML(
+                                                primary.priority
+                                            )}
+                                        </strong>
+                                    </span>
+                                `
+                                : ""
+                        }
 
                     </div>
+
 
                     <h3>
-                        ${primary.name ?? "Mitigação não identificada"}
+                        ${escapeHTML(
+                            primary.title ??
+                            primary.name ??
+                            "Mitigação não identificada"
+                        )}
                     </h3>
 
-                    <p>
-                        ${primary.description ?? ""}
-                    </p>
 
-                    <div class="mitigation-meta">
+                    ${
+                        primary.name
+                            ? `
+                                <div
+                                    class="mitigation-meta"
+                                >
 
-                        <span>
-                            Categoria:
-                            <strong>
-                                ${primary.category ?? "N/D"}
-                            </strong>
-                        </span>
+                                    <span>
+                                        Identificador:
+                                        <strong>
+                                            ${escapeHTML(
+                                                primary.name
+                                            )}
+                                        </strong>
+                                    </span>
 
-                    </div>
+                                </div>
+                            `
+                            : ""
+                    }
 
-                    <div class="mitigation-actions">
 
-                        <strong class="mitigation-actions-title">
-                            Ações recomendadas
-                        </strong>
+                    ${
+                        primary.description
+                            ? `
+                                <p>
+                                    ${escapeHTML(
+                                        primary.description
+                                    )}
+                                </p>
+                            `
+                            : ""
+                    }
 
-                        ${renderActions(primary.actions)}
 
-                    </div>
+                    ${renderReferences(
+                        primary.referenceIds
+                    )}
 
                 </article>
 
             </div>
 
+
+            <!-- ==================================================== -->
+            <!-- AÇÕES -->
+            <!-- ==================================================== -->
+
+            <div class="mitigation-section">
+
+                <h3 class="mitigation-section-title">
+                    Ações Recomendadas
+                </h3>
+
+
+                ${renderActions()}
+
+            </div>
+
+
+            <!-- ==================================================== -->
+            <!-- MITIGAÇÕES SECUNDÁRIAS -->
+            <!-- ==================================================== -->
 
             <div class="mitigation-section">
 
@@ -262,7 +591,10 @@ export default function renderMitigations(mitigations) {
                     Mitigações Secundárias
                 </h3>
 
-                <div class="mitigation-secondary-list">
+
+                <div
+                    class="mitigation-secondary-list"
+                >
 
                     ${secondaryHTML}
 
@@ -270,8 +602,47 @@ export default function renderMitigations(mitigations) {
 
             </div>
 
+
         </div>
 
     `;
+
+}
+
+
+// ======================================================================
+// Segurança básica de saída
+// ======================================================================
+
+function escapeHTML(
+    value
+) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 
 }
