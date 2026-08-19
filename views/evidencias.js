@@ -103,7 +103,7 @@ export default function renderEvidencias(
     // ================================================================
 
     const records =
-        analysis?.evidences?.records;
+        analysis?.analysis?.evidence?.records;
 
     const recordCount =
         Array.isArray(records)
